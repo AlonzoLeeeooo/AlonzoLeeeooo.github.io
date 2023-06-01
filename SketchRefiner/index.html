@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Uni-ControlNet: All-in-One Control to Text-to-Image Diffusion Models">
+  <meta name="keywords" content="Text-to-Image Generation, Controllable Diffusion Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Towards Interactive Image Inpainting via Sketch Refinement</title>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Towards Interactive Image Inpainting via Sketch Refinement</h1>
+          <h1 class="title is-3">arXiv 2023</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=Y3NKd1wAAAAJ&hl=zh-CN">Chang Liu</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=rMaBuHUAAAAJ&hl=zh-CN&oi=ao">Shunxin Xu</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=zh-CN&user=gHEd-IMAAAAJ">Jialun Peng</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://hitachinsk.github.io/">Kaidong Zhang</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://faculty.ustc.edu.cn/dongeliu/">Dong Liu</a><sup>1*</sup>,</span>
+            <span class="author-block">
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Science and Technology of China,</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/AlonzoLeeeooo/SketchRefiner"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+                  <span class="link-block">
+                    <a href="https://github.com/AlonzoLeeeooo/SketchRefiner"
+                       class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                          <i class="fas fa-database"></i>
+                      </span>
+                      <span>Dataset</span>
+                      </a>
+                      </span>
+
+                      <span class="link-block">
+                        <a href="https://github.com/AlonzoLeeeooo/SketchRefiner"
+                           class="external-link button is-normal is-rounded is-dark">
+                          <span class="icon">
+                              <i class="fas fa-gamepad"></i>
+                          </span>
+                          <span>Demo</span>
+                          </a>
+                          </span>
+                    
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Teaser. -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div>
+        <img src="./static/images/teasor.jpg" alt="results" class="center">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+  <div class="container">
+
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            One tough problem of image inpainting is to restore complex structures in the corrupted regions. It motivates interactive image inpainting which leverages additional hints, e.g., sketches, to assist the inpainting process. Sketch is simple and intuitive to end users, but meanwhile has free forms with much randomness. Such randomness may confuse the inpainting models, and incur severe artifacts in completed images. To address this problem, we propose a two-stage image inpainting method termed SketchRefiner. In the first stage, we propose using a cross-correlation loss function to robustly calibrate and refine the user-provided sketches in a coarse-to-fine fashion. In the second stage, we learn to extract features from the abstracted sketches in a latent space and modulate the inpainting process. We also propose an algorithm to simulate real sketches automatically and build a test protocol to evaluate different methods under real applications. Experimental results on public datasets demonstrate that SketchRefiner effectively utilizes sketch information and eliminates the artifacts due to the free-form sketches. Our method consistently outperforms state-of-the-art baselines both qualitatively and quantitatively, meanwhile revealing great potential in real-world applications.
+          </p>
+      </div>
+    </div>
+
+    <!-- Pipeline. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <br />
+        <h2 class="title is-3">Pipeline</h2>
+          <img src="./static/images/pipeline.jpg" alt="pipeline" style="width:100%; ">
+        <div class="content has-text-justified">
+          <p>
+             SketchRefiner consists of two stages: Sketch Refinement Network (SRN) and Sketch-modulated Inpainting Network (SIN). SRN focuses on calibrating the input sketches to boost their usability. Then, SIN utilizes the refined sketches to guide the inpainting process and recover the missing textures.
+          </p>
+        </div>
+      </div>
+    </div>
+
+     <!-- Test Protocol. -->
+     <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <br />
+        <h2 class="title is-3">Sketch-based Test Protocol</h2>
+        <div class="content has-text-justified">
+          <p>
+             To evaluate the usability of sketch-based methods upon real-world applications, we propose a novel sketch-based test protocol. We randomly collect a series of face images as well as scene-level images, and manually annotate the masks and sketches with apple pencil on iPad. Out of demonstration, the test protocol covers challenging real applications including face editing, scene editing, object removal and watermark removal. The proposed testing benchmark would be open-sourced to promote further studies.
+          </p>
+        </div>
+          <img src="./static/images/realworld.jpg" alt="pipeline" style="width:100%; ">
+      </div>
+    </div>
+
+    <!-- Results. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="container is-max-desktop">
+        <br />
+        <h2 class="title is-3">Qualitative Comparison</h2>
+        <div class="content has-text-justified">
+          <p>
+            We evaluate the proposed SketchRefiner compared with state-of-the-art methods following previous solutions. Evaluation are implemented upon CelebA-HQ, ImageNet and Places2 datasets. Besides, we implement additional evaluation with real sketches on our proposed sketch-based test protocol. Results using synthetic sketches and real ones demonstrate the superiority of SketchRefiner over other competitors. 
+          </p>
+        </div>
+        <img src="./static/images/face.jpg" alt="face" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+           Qualitative comparison upon inpainting task and real applications of face images.
+          </p>
+        </div>
+        <img src="./static/images/scene.jpg" alt="scene" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+            Qualitative comparison upon real applications of scene-level images.
+          </p>
+        </div>
+
+        <!-- Test Protocol. -->
+     <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <br />
+        <h2 class="title is-3">More Results</h2>
+        <div class="content has-text-justified">
+          <p>
+             More results upon the proposed test protocol are demonstrated in the following figure.
+          </p>
+        </div>
+          <img src="./static/images/more_results.jpg" alt="more_results" style="width:100%; ">
+      </div>
+    </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <div class="content has-text-justified">
+      <p>
+         If you find our work is enlightening or the proposed dataset is useful to you, please cite our paper.
+      </p>
+    </div>
+    <!-- <pre><code>@misc{liu2023lateconstraint,
+      title={Late-Constraint Diffusion Guidance for Controllable Image Synthesis}, 
+      author={Chang Liu and Dong Liu},
+      year={2023},
+      eprint={2305.11520},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}</code></pre> -->
+  </div>
+</section>
+
+
+
+</body>
+</html>
