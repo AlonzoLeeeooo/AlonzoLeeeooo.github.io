@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Uni-ControlNet: All-in-One Control to Text-to-Image Diffusion Models">
+  <meta name="keywords" content="Text-to-Image Generation, Controllable Diffusion Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Late-Constraint Diffusion Guidance for Controllable Image Synthesis</title>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Late-Constraint Diffusion Guidance for Controllable Image Synthesis</h1>
+          <h1 class="title is-3">arXiv 2023</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=Y3NKd1wAAAAJ&hl=zh-CN">Chang Liu</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://faculty.ustc.edu.cn/dongeliu/">Dong Liu</a><sup>1*</sup>,</span>
+            <span class="author-block">
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Science and Technology of China,</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2305.11520"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/AlonzoLeeeooo/LCDG"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Teaser. -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div>
+        <img src="./static/images/text_results.jpg" alt="results" class="center">
+      </div>
+      <h2 class="subtitle has-text">
+        Results of the proposed <span class="dnerf">Late-Constraint Diffusion Guidance</span>.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+  <div class="container">
+
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            Diffusion models, either with or without text condition, have demonstrated impressive capability in synthesizing photorealistic images given a few or even no words. These models may not fully satisfy user need, as normal users or artists intend to control the synthesized images with specific guidance, like overall layout, color, structure, object shape, and so on. To adapt diffusion models for controllable image synthesis, several methods have been proposed to incorporate the required conditions as regularization upon the intermediate features of the diffusion denoising network. These methods, known as early-constraint ones in this paper, have difficulties in handling multiple conditions with a single solution. They intend to train separate models for each specific condition, which require much training cost and result in non-generalizable solutions. To address these difficulties, we propose a new approach namely late-constraint: we leave the diffusion networks unchanged, but constrain its output to be aligned with the required conditions. Specifically, we train a lightweight condition adapter to establish the correlation between external conditions and internal representations of diffusion models. During the iterative denoising process, the conditional guidance is sent into corresponding condition adapter to manipulate the sampling process with the established correlation. We further equip the introduced late-constraint strategy with a timestep resampling method and an early stopping technique, which boost the quality of synthesized image meanwhile complying with the guidance. Our method outperforms the existing early-constraint methods and generalizes better to unseen condition.
+          </p>
+          <img src="./static/images/tissor.jpg" alt="teasor" style="width:100%; ">
+        <div class="content has-text-justified">
+          <p>
+            Graphical illustration of existing <span class="dnerf">Early-Constraint</span> solutions and the proposed <span class="dnerf">Late-Constraint Diffusion Guidance</span>.
+          </p>
+      </div>
+    </div>
+
+    <!-- Pipeline. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full-width">
+        <br />
+        <h2 class="title is-3">Pipeline</h2>
+          <img src="./static/images/training_pipeline.jpg" alt="training_pipeline" style="width:100%; ">
+        <div class="content has-text-justified">
+          <p>
+             The proposed late-constraint method requires to train an additional condition adapter to establish the correlation between the internal representations of diffusion models and external controls. The trained adapter is then utilized to control diffusion models by manipulating the sampling process.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- Results. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="container is-max-desktop">
+        <br />
+        <h2 class="title is-3">More Results and Comparison</h2>
+        <div class="content has-text-justified">
+          <p>
+            We demonstrate the proposed LCDG upon some conditions that mainly provide structural guidance, including edge, color and mask conditions. Note that for each condition, we only need to use one same model for generation. Edge condition consists of different types of edge maps and user sketch. Color condition contains user-prompted color stroke and synthetic image palette. Mask condition consists of casual user scribble and fine-grained segmentation masks, which guides the foreground position and shape separately. Results and comparison are illustrated in the following figures.
+          </p>
+        </div>
+        <img src="./static/images/canny_edge.jpg" alt="canny_edge" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+           More results and comparison of LCDG under Canny edge.
+          </p>
+        </div>
+        <img src="./static/images/hed_edge.jpg" alt="hed_edge" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+            More results and comparison of LCDG under HED edge.
+          </p>
+        </div>
+        <img src="./static/images/user_sketch.jpg" alt="user_sketch" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+            More results and comparison of LCDG under user sketch.
+          </p>
+        </div>
+        <img src="./static/images/color_stroke.jpg" alt="color_stroke" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+            More results and comparison of LCDG under color stroke.
+          </p>
+        </div>
+        <img src="./static/images/image_palette.jpg" alt="color_stroke" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+            More results and comparison of LCDG under image palette.
+          </p>
+        </div>
+        <img src="./static/images/mask.jpg" alt="mask" style="width:100%; ">
+        <div text-align:center>
+          <p class="center">
+            More results and comparison of LCDG under segmentation mask and user scribble.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{liu2023lateconstraint,
+      title={Late-Constraint Diffusion Guidance for Controllable Image Synthesis}, 
+      author={Chang Liu and Dong Liu},
+      year={2023},
+      eprint={2305.11520},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}</code></pre>
+  </div>
+</section>
+
+
+
+</body>
+</html>
