@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="description"
-        content="Uni-ControlNet: All-in-One Control to Text-to-Image Diffusion Models">
+        content="LaCon: Late-Constraint Diffusion for Steerable Guided Image Synthesis">
   <meta name="keywords" content="Text-to-Image Generation, Controllable Diffusion Models">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Late-Constraint Diffusion Guidance for Controllable Image Synthesis</title>
+  <title>LaCon: Late-Constraint Diffusion for Steerable Guided Image Synthesis</title>
 
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -46,18 +46,24 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Late-Constraint Diffusion Guidance for Controllable Image Synthesis</h1>
+          <h1 class="title is-1 publication-title">LaCon: Late-Constraint Diffusion for Steerable Guided Image Synthesis</h1>
           <h1 class="title is-3">arXiv 2023</h1>
           <div class="is-size-5 publication-authors">
             <span class="author-block">
               <a href="https://scholar.google.com/citations?user=Y3NKd1wAAAAJ&hl=zh-CN">Chang Liu</a><sup>1</sup>,</span>
+            <span class="author-block">
+              Rui Li<sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=oDbvhiQAAAAJ&hl=en">Kaidong Zhang</a><sup>1*</sup>,</span>
+            <span class="author-block">
+              Xin Luo<sup>1</sup>,</span>
             <span class="author-block">
               <a href="https://faculty.ustc.edu.cn/dongeliu/">Dong Liu</a><sup>1*</sup>,</span>
             <span class="author-block">
           </div>
 
           <div class="is-size-5 publication-authors">
-            <span class="author-block"><sup>1</sup>University of Science and Technology of China,</span>
+            <span class="author-block"><sup>1</sup>University of Science and Technology of China</span>
           </div>
 
           <div class="column has-text-centered">
@@ -79,6 +85,22 @@
                   </span>
                   <span>Code</span>
                   </a>
+              <span class="link-block">
+                    <a href="https://huggingface.co/AlonzoLeeeooo/LaCon"
+                       class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fab fa-face-smiling-hands"></i>
+                      </span>
+                      <span>Huggingface</span>
+                      </a>
+              <span class="link-block">
+                        <a href="https://modelscope.cn/models/AlonzoLeeeoooo/LaCon"
+                           class="external-link button is-normal is-rounded is-dark">
+                          <span class="icon">
+                              <i class="fab fa-face-horns"></i>
+                          </span>
+                          <span>ModelScope</span>
+                          </a>
             </div>
           </div>
         </div>
@@ -115,79 +137,60 @@
       <div class="column is-full-width">
         <h2 class="title is-3">Overview</h2>
         <div class="content has-text-justified">
+          <img src="./static/images/teasor.jpg" alt="teasor" style="width:100%; ">
           <p>
-            Diffusion models, either with or without text condition, have demonstrated impressive capability in synthesizing photorealistic images given a few or even no words. These models may not fully satisfy user need, as normal users or artists intend to control the synthesized images with specific guidance, like overall layout, color, structure, object shape, and so on. To adapt diffusion models for controllable image synthesis, several methods have been proposed to incorporate the required conditions as regularization upon the intermediate features of the diffusion denoising network. These methods, known as early-constraint ones in this paper, have difficulties in handling multiple conditions with a single solution. They intend to train separate models for each specific condition, which require much training cost and result in non-generalizable solutions. To address these difficulties, we propose a new approach namely late-constraint: we leave the diffusion networks unchanged, but constrain its output to be aligned with the required conditions. Specifically, we train a lightweight condition adapter to establish the correlation between external conditions and internal representations of diffusion models. During the iterative denoising process, the conditional guidance is sent into corresponding condition adapter to manipulate the sampling process with the established correlation. We further equip the introduced late-constraint strategy with a timestep resampling method and an early stopping technique, which boost the quality of synthesized image meanwhile complying with the guidance. Our method outperforms the existing early-constraint methods and generalizes better to unseen condition.
+            Diffusion models have demonstrated impressive abilities in generating photo-realistic and creative images. To offer more controllability for the generation process, existing studies, termed as early-constraint methods in this paper, leverage extra conditions and incorporate them into pre-trained diffusion models. Particularly, some of them adopt condition-specific modules to handle conditions separately, where they struggle to generalize across other conditions. Although follow-up studies present unified solutions to solve the generalization problem, they also require extra resources to implement, e.g., additional inputs or parameter optimization, where more flexible and efficient solutions are expected to perform steerable guided image synthesis. In this paper, we present an alternative paradigm, namely Late-Constraint Diffusion (LaCon), to simultaneously integrate various conditions into pre-trained diffusion models. Specifically, LaCon establishes an alignment between the external condition and the internal features of diffusion models, and utilizes the alignment to incorporate the target condition, guiding the sampling process to produce tailored results. Experimental results on COCO dataset illustrate the effectiveness and superior generalization capability of LaCon under various conditions and settings. Ablation studies investigate the functionalities of different components in LaCon, and illustrate its great potential to serve as an efficient solution to offer flexible controllability for diffusion models.
           </p>
-          <img src="./static/images/tissor.jpg" alt="teasor" style="width:100%; ">
-        <div class="content has-text-justified">
-          <p>
-            Graphical illustration of existing <span class="dnerf">Early-Constraint</span> solutions and the proposed <span class="dnerf">Late-Constraint Diffusion Guidance</span>.
-          </p>
-      </div>
     </div>
 
-    <!-- Pipeline. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-full-width">
-        <br />
-        <h2 class="title is-3">Pipeline</h2>
-          <img src="./static/images/training_pipeline.jpg" alt="training_pipeline" style="width:100%; ">
-        <div class="content has-text-justified">
-          <p>
-             The proposed late-constraint method requires to train an additional condition adapter to establish the correlation between the internal representations of diffusion models and external controls. The trained adapter is then utilized to control diffusion models by manipulating the sampling process.
-          </p>
-        </div>
-
-      </div>
-    </div>
 
 
     <!-- Results. -->
     <div class="columns is-centered has-text-centered">
       <div class="container is-max-desktop">
         <br />
-        <h2 class="title is-3">More Results and Comparison</h2>
+        <h2 class="title is-3">Qualitative Results</h2>
         <div class="content has-text-justified">
           <p>
-            We demonstrate the proposed LCDG upon some conditions that mainly provide structural guidance, including edge, color and mask conditions. Note that for each condition, we only need to use one same model for generation. Edge condition consists of different types of edge maps and user sketch. Color condition contains user-prompted color stroke and synthetic image palette. Mask condition consists of casual user scribble and fine-grained segmentation masks, which guides the foreground position and shape separately. Results and comparison are illustrated in the following figures.
+            LaCon demonstrates promising performance when compared to state-of-the-art conditional generation methods.
           </p>
         </div>
-        <img src="./static/images/canny_edge.jpg" alt="canny_edge" style="width:100%; ">
         <div text-align:center>
           <p class="center">
-           More results and comparison of LCDG under Canny edge.
+           Canny Edge
           </p>
         </div>
-        <img src="./static/images/hed_edge.jpg" alt="hed_edge" style="width:100%; ">
+        <img src="./static/images/canny-edge.png" alt="canny_edge" style="width:100%; ">
         <div text-align:center>
           <p class="center">
-            More results and comparison of LCDG under HED edge.
+            HED Edge
           </p>
         </div>
-        <img src="./static/images/user_sketch.jpg" alt="user_sketch" style="width:100%; ">
+        <img src="./static/images/hed-edge.png" alt="hed_edge" style="width:100%; ">
         <div text-align:center>
           <p class="center">
-            More results and comparison of LCDG under user sketch.
+            User Sketch
           </p>
         </div>
-        <img src="./static/images/color_stroke.jpg" alt="color_stroke" style="width:100%; ">
+        <img src="./static/images/user-sketch.png" alt="user_sketch" style="width:100%; ">
         <div text-align:center>
           <p class="center">
-            More results and comparison of LCDG under color stroke.
+            Color Stroke
           </p>
         </div>
-        <img src="./static/images/image_palette.jpg" alt="color_stroke" style="width:100%; ">
+        <img src="./static/images/color-stroke.png" alt="color_stroke" style="width:100%; ">
+        <div text-align:center>
+        <p class="center">
+          Image Palette
+        </p>
+      </div>
+        <img src="./static/images/image-palette.png" alt="color_stroke" style="width:100%; ">
         <div text-align:center>
           <p class="center">
-            More results and comparison of LCDG under image palette.
+            Binary Mask
           </p>
         </div>
-        <img src="./static/images/mask.jpg" alt="mask" style="width:100%; ">
-        <div text-align:center>
-          <p class="center">
-            More results and comparison of LCDG under segmentation mask and user scribble.
-          </p>
-        </div>
+        <img src="./static/images/mask.png" alt="mask" style="width:100%; ">
 
       </div>
     </div>
@@ -202,13 +205,13 @@
     <h2 class="title">BibTeX</h2>
     <div class="content has-text-justified">
       <p>
-         If you find our work is enlightening or useful to you, please cite our paper.
+         If you find our paper helpful to your work, please cite our paper with the following BibTeX reference:
       </p>
     </div>
-    <pre><code>@misc{liu2023lateconstraint,
-      title={Late-Constraint Diffusion Guidance for Controllable Image Synthesis}, 
-      author={Chang Liu and Dong Liu},
-      year={2023},
+    <pre><code>@misc{liu-etal-2024-lacon,
+      title={{LaCon: Late-Constraint Diffusion for Steerable Guided Image Synthesis}}, 
+      author={{Chang Liu, Rui Li, Kaidong Zhang, Xin Luo, and Dong Liu}},
+      year={2024},
       eprint={2305.11520},
       archivePrefix={arXiv},
       primaryClass={cs.CV}
