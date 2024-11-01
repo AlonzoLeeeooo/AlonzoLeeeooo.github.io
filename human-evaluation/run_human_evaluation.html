@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Evaluation</title>
+    <style>
+        .source-video {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .source-video img {
+            width: 100%;
+            max-width: 200px; /* Adjust as needed */
+            max-height: 200px;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+            gap: 5px;
+        }
+        .video-item {
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .video-item img {
+            width: 100%;
+            height: 100%;
+            max-width: 200px; /* Set a maximum width */
+            max-height: 200px; /* Set a maximum height */
+            aspect-ratio: 1 / 1; /* Ensures the image is square */
+            object-fit: cover; /* Ensures the image covers the square area */
+        }
+        .method-selection {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="evaluationContainer"></div>
+    <button onclick="nextCase()">Next Case</button>
+    <button id="downloadButton" style="display:none;" onclick="downloadResults()">Download Results</button>
+
+    <script>
+        let currentCaseIndex = 0;
+        let evaluationResults = [];
+        let evaluationData = [
+            {
+                /* 1st case */
+                prompt: "A yellow duck swimming in a pond",
+                source: "evaluation-cases/1/source.gif",
+                results: [
+                    { video: "evaluation-cases/1/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/1/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/1/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/1/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/1/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/1/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/1/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/1/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 2nd case */
+                prompt: "A wolf is walking on the grass",
+                source: "evaluation-cases/2/source.gif",
+                results: [
+                    { video: "evaluation-cases/2/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/2/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/2/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/2/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/2/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/2/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/2/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/2/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 3rd case */
+                prompt: "A lion is walking around in a zoo",
+                source: "evaluation-cases/3/source.gif",
+                results: [
+                    { video: "evaluation-cases/3/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/3/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/3/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/3/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/3/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/3/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/3/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/3/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 4th case */
+                prompt: "A rooster is walking on the grass",
+                source: "evaluation-cases/4/source.gif",
+                results: [
+                    { video: "evaluation-cases/4/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/4/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/4/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/4/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/4/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/4/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/4/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/4/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 5th case */
+                prompt: "A ball floating on a pond",
+                source: "evaluation-cases/5/source.gif",
+                results: [
+                    { video: "evaluation-cases/5/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/5/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/5/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/5/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/5/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/5/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/5/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/5/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 6th case */
+                prompt: "A tank driving up a hill",
+                source: "evaluation-cases/6/source.gif",
+                results: [
+                    { video: "evaluation-cases/6/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/6/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/6/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/6/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/6/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/6/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/6/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/6/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 7th case */
+                prompt: "a turtle swimming in a pond",
+                source: "evaluation-cases/7/source.gif",
+                results: [
+                    { video: "evaluation-cases/7/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/7/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/7/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/7/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/7/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/7/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/7/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/7/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 8th case */
+                prompt: "A horse in an enclosure at a zoo",
+                source: "evaluation-cases/8/source.gif",
+                results: [
+                    { video: "evaluation-cases/8/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/8/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/8/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/8/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/8/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/8/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/8/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/8/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 9th case */
+                prompt: "A zebra",
+                source: "evaluation-cases/9/source.gif",
+                results: [
+                    { video: "evaluation-cases/9/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/9/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/9/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/9/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/9/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/9/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/9/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/9/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 10th case */
+                prompt: "A small truck is driving down the street",
+                source: "evaluation-cases/10/source.gif",
+                results: [
+                    { video: "evaluation-cases/10/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/10/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/10/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/10/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/10/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/10/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/10/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/10/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 11th case */
+                prompt: "A man riding a motorbike in front of a building",
+                source: "evaluation-cases/11/source.gif",
+                results: [
+                    { video: "evaluation-cases/11/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/11/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/11/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/11/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/11/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/11/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/11/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/11/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 12th case */
+                prompt: "A robot with a backpack walking up a hill",
+                source: "evaluation-cases/12/source.gif",
+                results: [
+                    { video: "evaluation-cases/12/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/12/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/12/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/12/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/12/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/12/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/12/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/12/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 13th case */
+                prompt: "A truck is driving on the road",
+                source: "evaluation-cases/13/source.gif",
+                results: [
+                    { video: "evaluation-cases/13/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/13/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/13/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/13/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/13/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/13/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/13/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/13/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 14th case */
+                prompt: "A tiger is walking in the zoo",
+                source: "evaluation-cases/14/source.gif",
+                results: [
+                    { video: "evaluation-cases/14/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/14/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/14/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/14/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/14/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/14/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/14/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/14/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 15th case */
+                prompt: "A sport car is driving on the road",
+                source: "evaluation-cases/15/source.gif",
+                results: [
+                    { video: "evaluation-cases/15/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/15/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/15/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/15/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/15/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/15/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/15/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/15/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 16th case */
+                prompt: "A sport car driving down a winding road in the mountains",
+                source: "evaluation-cases/16/source.gif",
+                results: [
+                    { video: "evaluation-cases/16/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/16/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/16/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/16/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/16/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/16/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/16/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/16/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 17th case */
+                prompt: "a camel is walking around in a zoo",
+                source: "evaluation-cases/17/source.gif",
+                results: [
+                    { video: "evaluation-cases/17/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/17/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/17/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/17/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/17/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/17/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/17/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/17/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 18th case */
+                prompt: "A rabbit walking on the grass",
+                source: "evaluation-cases/18/source.gif",
+                results: [
+                    { video: "evaluation-cases/18/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/18/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/18/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/18/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/18/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/18/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/18/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/18/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 19th case */
+                prompt: "a boat surfing in the ocean",
+                source: "evaluation-cases/19/source.gif",
+                results: [
+                    { video: "evaluation-cases/19/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/19/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/19/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/19/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/19/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/19/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/19/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/19/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 20th case */
+                prompt: "a wolf running through a fence in the yard",
+                source: "evaluation-cases/20/source.gif",
+                results: [
+                    { video: "evaluation-cases/20/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/20/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/20/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/20/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/20/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/20/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/20/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/20/method8.gif", method: "method8" }
+                ]
+            },
+            {
+                /* 21th case */
+                prompt: "A man riding a horse in front of a building",
+                source: "evaluation-cases/21/source.gif",
+                results: [
+                    { video: "evaluation-cases/21/method1.gif", method: "method1" },
+                    { video: "evaluation-cases/21/method2.gif", method: "method2" },
+                    { video: "evaluation-cases/21/method3.gif", method: "method3" },
+                    { video: "evaluation-cases/21/method4.gif", method: "method4" },
+                    { video: "evaluation-cases/21/method5.gif", method: "method5" },
+                    { video: "evaluation-cases/21/method6.gif", method: "method6" },
+                    { video: "evaluation-cases/21/method7.gif", method: "method7" },
+                    { video: "evaluation-cases/21/method8.gif", method: "method8" }
+                ]
+            },
+        ];
+
+        function renderCurrentCase() {
+            if (currentCaseIndex >= evaluationData.length) {
+                showDownloadButton();
+                return;
+            }
+
+            const currentCase = evaluationData[currentCaseIndex];
+            const container = document.getElementById('evaluationContainer');
+            
+            container.innerHTML = `
+                <div class="case-container">
+                    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                        <div style="width: 100%; height: 20px; background-color: #eee; border-radius: 10px; margin-bottom: 10px;">
+                            <div style="width: ${(currentCaseIndex + 1) / evaluationData.length * 100}%; height: 100%; background-color: #4CAF50; border-radius: 10px; position: relative;">
+                                <span style="position: absolute; width: 100%; text-align: center; color: white; line-height: 20px; font-size: 12px;">
+                                    Case ${currentCaseIndex + 1} of ${evaluationData.length}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="source-video">
+                        <h4>Source Video</h4>
+                        <img src="${currentCase.source}" alt="Source video">
+                    </div>
+                    
+                    <div class="video-grid">
+                        ${currentCase.results.map((result, index) => `
+                            <div class="video-item">
+                                <h4>${result.method}</h4>
+                                <img src="${result.video}" alt="Result video ${index + 1}">
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="method-selection">
+                        ${currentCase.results.map((result, index) => `
+                            <div>
+                                <input type="radio" name="methodSelection" id="method${index}" value="${result.method}" 
+                                       onchange="selectMethod(${index}, '${result.method}')">
+                                <label for="method${index}">Select ${result.method}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectMethod(index, method) {
+            evaluationResults[currentCaseIndex] = method;
+        }
+
+        function nextCase() {
+            if (currentCaseIndex < evaluationData.length) {
+                currentCaseIndex++;
+                renderCurrentCase();
+            }
+        }
+
+        function showDownloadButton() {
+            document.getElementById('downloadButton').style.display = 'block';
+        }
+
+        function downloadResults() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(evaluationResults, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "evaluation_results.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        // Initialize the evaluation
+        renderCurrentCase();
+    </script>
+</body>
+</html> 
