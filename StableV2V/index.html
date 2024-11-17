@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AnyV2V</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/f8ddf9854a.js" crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta name="description" content="We introduce AnyV2V, A Unified Framework for Video-to-Video Generation Tasks.">
+     <meta name="keywords" content="AnyV2V, VideoEdit, VideoGen, video, editing, artificial intelligence, AI, AIGC">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> AnyV2V: A Tuning-Free Framework For Any Video-to-Video Editing Tasks</title>
+
+    <link rel="icon" href="static/images/icon.png">
+
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+    <link rel="stylesheet" href="static/css/bulma.min.css">
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="static/css/index.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="static/js/fontawesome.all.min.js"></script>
+    <script defer src="static/js/fontawesome.all.min.js"></script>
+    <script src="static/js/bulma-carousel.min.js"></script>
+    <script src="static/js/bulma-slider.min.js"></script>
+    <script src="static/js/index.js"></script>
+</head>
+
+<style>
+.sidebar {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 200px;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    margin: 8px 0;
+}
+
+.sidebar-nav a {
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+    display: block;
+    padding: 5px 10px;
+}
+
+.sidebar-nav a:hover {
+    color: rgb(205, 48, 0);
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.sidebar-nav .active {
+    color: rgb(205, 48, 0);
+    font-weight: bold;
+}
+
+@media screen and (max-width: 1200px) {
+    .sidebar {
+        display: none;
+    }
+}
+
+.sub-nav {
+    list-style: none;
+    padding-left: 15px;
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+
+.sub-nav li {
+    margin: 4px 0;
+}
+
+.sub-nav a {
+    color: #666;
+    padding: 3px 8px;
+}
+
+.sub-nav a:hover {
+    color: rgb(205, 48, 0);
+}
+
+.sub-nav .active {
+    color: rgb(205, 48, 0);
+    font-weight: bold;
+}
+</style>
+
+<div class="sidebar">
+    <ul class="sidebar-nav">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#method">Method</a></li>
+        <li><a href="#davis-edit">DAVIS-Edit</a></li>
+        <li>
+            <a href="#results">Results and Applications</a>
+            <ul class="sub-nav">
+                <li><a href="#text-based">Text-based Editing</a></li>
+                <li><a href="#image-based">Image-based Editing</a></li>
+                <li><a href="#instruction-based">Instruction-based Editing</a></li>
+                <li><a href="#sketch-based">Sketch-based Editing</a></li>
+                <li><a href="#video-inpainting">Video Inpainting</a></li>
+                <li><a href="#video-style">Video Style Transfer</a></li>
+            </ul>
+        </li>
+        <li><a href="#comparisons">Comparisons</a></li>
+    </ul>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.sidebar-nav a');
+    
+    // Add smooth scrolling to anchor links
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+    
+    window.addEventListener('scroll', () => {
+        let current = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 60) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === current) {
+                link.classList.add('active');
+            }
+        });
+    });
+});
+</script>
+
+
+<body>
+<section class="hero">
+    <div class="hero-body">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column has-text-centered">
+                    <h1 class="title is-1 publication-title" style="display: flex; align-items: center;">
+                        <img src="static/images/icon.png" alt="" style="flex: 0 0 auto; height: 2em; margin-right: 10px;">
+                        <span style="flex: 1 1 auto;">StableV2V: Stablizing Shape Consistency in Video-to-Video Editing</span>
+                    </h1>
+                    <div class="is-size-5 publication-authors">
+                        <!-- Paper authors -->
+                        <span class="author-block">
+                            <a href="" target="_blank">Chang Liu</a><sup>1</sup>,
+                        </span>
+                        <span class="author-block">
+                            <a href="" target="_blank">Rui Li</a><sup>1</sup>,
+                        </span>
+                        <span class="author-block">
+                            <a href="" target="_blank">Kaidong Zhang</a><sup>1</sup>,
+                        </span>
+                        <span class="author-block">
+                            <a href="" target="_blank">Yunwei Lan</a><sup>2</sup>,
+                        </span>
+                        <span class="author-block">
+                            <a href="" target="_blank">Dong Liu</a><sup>1*</sup>,
+                        </span>
+                    </div>
+                    <div class="is-size-5 publication-authors">
+                        <span class="author-block">
+                            <sup>1</sup>University of Science and Technology of China
+                        </span>
+                        <br>
+                        <span class="author-block"><small>*Corresponding author</small></span>
+                        <br>
+                    </div>
+                            <span class="link-block">
+                                    <a href="" target="_blank"
+                                    class="external-link button is-normal is-rounded is-dark">
+                                        <span>Paper</span>
+                            </a>
+                            </span>
+                            <!-- Github link -->
+                            <span class="link-block">
+                                <a href="https://github.com/AlonzoLeeeooo/StableV2V" target="_blank"
+                                class="external-link button is-normal is-rounded is-dark">
+                                    <span>Code</span>
+                        </a>
+                        </span>
+                            <!-- Demo Link -->
+                            <span class="link-block">
+                                <a href="https://huggingface.co/AlonzoLeeeooo/StableV2V" target="_blank"
+                                class="external-link button is-normal is-rounded is-dark">
+                                    <span>Models</span>
+                        </a>
+                        </span>
+                            <!-- Notebook Link -->
+                            <span class="link-block">
+                                <a href="https://huggingface.co/datasets/AlonzoLeeeooo/DAVIS-Edit" target="_blank"
+                                class="external-link button is-normal is-rounded is-dark">
+                                    <span>Dataset</span>
+                        </a>
+                        </span>
+                            
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!--<section class="hero">-->
+<!--        <div class="hero-body">-->
+<!--            <div class="container is-max-desktop">-->
+<!--                <div class="columns is-centered">-->
+<!--                    <div class="column is-full">-->
+<!--                        <div class="item">-->
+<!--                            &lt;!&ndash; Your image here &ndash;&gt;-->
+<!--                            <img src="static/images/banner.png" width="100%" alt="AnyV2V" />-->
+<!--                            <h2 class="subtitle">-->
+<!--                                AnyV2V disentangles the video editing process into two stages: (1) first-frame image editing and (2) image-to-video reconstruction. The first phase benefits from the extensive range of existing image editing models, enabling (1) detailed and precise modification and (2) flexibility for any editing tasks.-->
+<!--                            </h2>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--</section>-->
+
+
+<!--<section class="hero is-small">-->
+<!--        <div class="hero-body">-->
+<!--          <div class="container">-->
+<!--            <video style="display: block; margin: auto; max-height: 50vh;" poster="" autoplay controls muted loop playsinline height="100%">-->
+<!--                <source src="./static/videos/old_man/src.mp4"-->
+<!--                        type="video/mp4">-->
+<!--            </video>-->
+<!--            Edited with AnyV2V:-->
+<!--            <div id="results-carousel" class="carousel results-carousel">-->
+<!--              <div class="item">-->
+<!--                <video poster="" autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/old_man/row_sub1.mp4"-->
+<!--                          type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--              <div class="item">-->
+<!--                <video poster="" autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/old_man/row_sub2.mp4"-->
+<!--                          type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--</section>-->
+
+<!-- Paper abstract -->
+<section class="section" id="overview">
+  <div class="container" style="margin-bottom: 2vh;">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">News</h2>
+        <div class="content has-text-justified">
+            <p>
+               <ul>
+                <li>2024 Nov. 17th: Project page of StableV2V is updated.</li>
+                </ul>
+            </p>
+      </div>
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+        <p>
+            StableV2V presents a novel paradigm to perform video editing in a shape-consistent manner, especially handling the editing scenarios when user prompts cause significant shape changes to the edited contents.
+        </p>
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/teasor-comparison.mp4" type="video/mp4">-
+            </video>
+            <p>
+                Besides, StableV2V shows superior flexibility in handling a wide series of down-stream applications, considering various user prompts from different modalities.
+            </p>
+            <video autoplay controls muted loop playsinline width="100%">
+                <source src="materials/teasor-applications.mp4" type="video/mp4">-
+            </video>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+</div>
+</section>
+<!-- End paper abstract -->
+
+
+<!-- Method -->
+<section class="section" id="method">
+  <div class="container">
+    <div class="columns is-centered has-text-centered">
+      <!-- <div class="column is-full-width has-text-centered"> -->
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+            <p>
+                StableV2V is built based on first-frame-based methods that decomposes the entire video editing process into image editing and motion transfer, where it handles the video editing task with three main components, i.e., Prompted First-frame Editor (PFE), Iterative Shape Aligner (ISA), and Condtiional Image-to-video Generator (CIG). 
+                Specifically, these components mainly function as follows:
+                <ul>
+                    <li>PFE serves as the first-frame image editor that converts user prompts into the edited contents, which are later propagated to the entire video through subsequent procedures.</li>
+                    <li>ISA mainly addresses the shape inconsistency issue, and utilizes the depth map as an intermediate vehicle to deliver motions, where it simulates and aligns the depth maps with the shapes of edited contents, and thus offers an accurate guidance for the CIG.</li>
+                    <li>CIG takes the edited first frame and aligned depth map as input, and plays as a depth-guided image-to-video generator to produce the entire edited video.</li>
+                </ul>
+            </p>
+            <img src="materials/method.png" width="100%" alt="method"/>
+        </div>
+    </div>
+    </div>  
+  </div>
+</section>
+
+
+<!-- Method -->
+<section class="section" id="davis-edit">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">DAVIS-Edit: A Testing Benchmark</h2>
+          <div class="content has-text-justified">
+              <img src="materials/davis-edit.png" width="100%" alt="method"/>
+          </div>
+          <ul>
+          <p>
+            We manually construct a testing benchmark, namely DAVIS-Edit, to offer a comprehensive evaluation for video editing studies.
+            DAVIS-Edit contains both text-based and image-based editing tasks, and we set two subsets to address editing scenarios with different degrees of shape differences.
+            You may refer to <a href="https://huggingface.co/datasets/AlonzoLeeeooo/DAVIS-Edit" target="_blank" style="text-decoration: underline;">this link</a> to find more details about the curated DAVIS-Edit dataset.
+        </p>
+        </ul>
+      </div>
+      </div>  
+    </div>
+  </section>
+  
+
+<!-- RESULTS SECTION -->
+<section class="section" id="results">
+  <div class="container">
+      <div class="columns is-centered has-text-centered">
+    <h2 class="title is-3">Results and Applications</h1>
+  </div>
+  <div class="container">
+      <!-- <div class="column is-full-width has-text-centered"> -->
+        <p>
+        <ul>
+          In the following videos, we demonstrate some editing cases performed by StableV2V, including:
+          <li> 1. Text-based Editing </li>
+          <li> 2. Image-based Editing </li>
+          <li> 3. Instruction-based Editing </li>
+          <li> 4. Sketch-based Editing </li>
+          <li> 5. Video Inpainting </li>
+          <li> 6. Video Style Transfer </li>
+        </ul>
+        </p>
+    </div>
+    </div>  
+  </div>
+</section>
+
+
+<!--<section class="section">-->
+<!--  <div class="container">-->
+<!--    <div class="columns is-centered has-text-centered">-->
+<!--      <div class="column is-four-fifths">-->
+<!--          <h2 class="title is-3" style="color: rgb(205, 48, 0);">Prompt based Editing</h2>-->
+<!--          <p>-->
+<!--                    AnyV2V is robust in a wide range of localized editing tasks while maintaining the background. The generated result aligns the most with the text prompt and also maintains high motion consistency.-->
+<!--          </p>-->
+<!--        <div class="box m-3">-->
+<!--          <div class="columns">-->
+<!--            &lt;!&ndash; Video 1 &ndash;&gt;-->
+<!--            <div class="column">-->
+<!--              <div style="text-align: center; margin-bottom: 2px;">"make it snowing"</div>-->
+<!--              <video autoplay controls muted loop playsinline height="100%">-->
+<!--                <source src="./static/videos/prompt_based/row1.mp4" type="video/mp4">-->
+<!--              </video>-->
+<!--            </div>-->
+<!--            &lt;!&ndash; Video 2 &ndash;&gt;-->
+<!--            <div class="column">-->
+<!--              <div style="text-align: center; margin-bottom: 2px;">"turn the man into darth vader"</div>-->
+<!--              <video autoplay controls muted loop playsinline height="100%">-->
+<!--                <source src="./static/videos/prompt_based/row2.mp4" type="video/mp4">-->
+<!--              </video>-->
+<!--            </div>-->
+<!--            &lt;!&ndash; Video 3 &ndash;&gt;-->
+<!--            <div class="column">-->
+<!--              <div style="text-align: center; margin-bottom: 2px;">"turn the couple into robots"</div>-->
+<!--              <video autoplay controls muted loop playsinline height="100%">-->
+<!--                <source src="./static/videos/prompt_based/row3.mp4" type="video/mp4">-->
+<!--              </video>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</section>-->
+
+
+<!--<section class="section">-->
+<!--  <div class="container">-->
+<!--    <div class="columns is-centered has-text-centered">-->
+<!--      <div class="column is-four-fifths">-->
+<!--        <h2 class="title is-3">AnyV2V Framework</h2>-->
+<!--        <div class="content has-text-justified">-->
+<!--          <p>-->
+<!--            AnyV2V disentangles the video editing process into two stages: (1) first-frame image editing and (2) image-to-video reconstruction. The first phase benefits from the extensive range of existing image editing models, enabling (1) detailed and precise modification and (2) flexibility for any editing tasks.-->
+<!--          </p>-->
+<!--          <div class="box m-5">-->
+<!--            &lt;!&ndash; First Row &ndash;&gt;-->
+<!--            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">-->
+<!--              <div style="text-align: center;">-->
+<!--                <div>"make it snowing"</div>-->
+<!--                <video autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/prompt_based/row1.mp4" type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--              <div style="text-align: center;">-->
+<!--                <div>"turn the man into darth vader"</div>-->
+<!--                <video autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/prompt_based/row2.mp4" type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--              <div style="text-align: center;">-->
+<!--                <div>"turn the couple into robots"</div>-->
+<!--                <video autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/prompt_based/row3.mp4" type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            &lt;!&ndash; Second Row &ndash;&gt;-->
+<!--            <div style="display: flex; justify-content: space-between;">-->
+<!--              <div style="text-align: center;">-->
+<!--                <div>"turn the sand into snow"</div>-->
+<!--                <video autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/prompt_based/row4.mp4" type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--              <div style="text-align: center;">-->
+<!--                <div>"turn horse into zebra"</div>-->
+<!--                <video autoplay controls muted loop playsinline height="100%">-->
+<!--                  <source src="./static/videos/prompt_based/row5.mp4" type="video/mp4">-->
+<!--                </video>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</section>-->
+
+<!-- Text-based Editing -->
+<section class="video-grid" id="text-based">
+  <div class="container">
+     <div class="content has-text-justified">
+       <h2 class="title is-3" style="color: rgb(205, 48, 0);">Text-based Editing</h2>
+     </div>
+  <!-- Row 1 -->
+  <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/text-based-editing/more-text-result-case-1.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+        <source src="materials/text-based-editing/more-text-result-case-2.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <!-- Row 2 -->
+  <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/text-based-editing/more-text-result-case-3.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+        <source src="materials/text-based-editing/more-text-result-case-4.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+   <!-- Row 3 -->
+   <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/text-based-editing/more-text-result-case-5.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+        <source src="materials/text-based-editing/more-text-result-case-6.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+  <!-- Row 3 -->
+  <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/text-based-editing/more-text-result-case-7.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div style="width: 48%; text-align: center;">
+      <video autoplay controls muted loop playsinline width="100%">
+        <source src="materials/text-based-editing/more-text-result-case-8.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+
+     <!-- Placeholder for a missing video -->
+      <div style="width: 100%; height: 100%; background-color: white; display: flex; align-items: center; justify-content: center;">
+        <span></span>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- Image-based Editing -->
+<section class="video-grid" id="image-based">
+    <div class="container">
+       <div class="content has-text-justified">
+         <h2 class="title is-3" style="color: rgb(205, 48, 0);">Image-based Editing</h2>
+       </div>
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/image-based-editing/more-image-result-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/image-based-editing/more-image-result-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 2 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/image-based-editing/more-image-result-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/image-based-editing/more-image-result-case-4.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+     <!-- Row 3 -->
+     <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/image-based-editing/more-image-result-case-5.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/image-based-editing/more-image-result-case-6.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 3 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/image-based-editing/more-image-result-case-7.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/image-based-editing/more-image-result-case-8.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+       <!-- Placeholder for a missing video -->
+        <div style="width: 100%; height: 100%; background-color: white; display: flex; align-items: center; justify-content: center;">
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- Instruction-based Editing -->
+<section class="video-grid" id="instruction-based">
+    <div class="container">
+       <div class="content has-text-justified">
+         <h2 class="title is-3" style="color: rgb(205, 48, 0);">Instruction-based Editing</h2>
+       </div>
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/instruction-based-editing/instruction-based-editing-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/instruction-based-editing/instruction-based-editing-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 2 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/instruction-based-editing/instruction-based-editing-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/instruction-based-editing/instruction-based-editing-case-4.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+       <!-- Placeholder for a missing video -->
+        <div style="width: 100%; height: 100%; background-color: white; display: flex; align-items: center; justify-content: center;">
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+
+  <!-- Sketch-based Editing -->
+<section class="video-grid" id="sketch-based">
+    <div class="container">
+       <div class="content has-text-justified">
+         <h2 class="title is-3" style="color: rgb(205, 48, 0);">Sketch-based Editing</h2>
+       </div>
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/sketch-based-editing/sketch-based-editing-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/sketch-based-editing/sketch-based-editing-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 2 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/sketch-based-editing/sketch-based-editing-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/sketch-based-editing/sketch-based-editing-case-4.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+       <!-- Placeholder for a missing video -->
+        <div style="width: 100%; height: 100%; background-color: white; display: flex; align-items: center; justify-content: center;">
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- Video Inpainting -->
+<section class="video-grid" id="video-inpainting">
+    <div class="container">
+       <div class="content has-text-justified">
+         <h2 class="title is-3" style="color: rgb(205, 48, 0);">Video Inpainting</h2>
+       </div>
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/video-inpainting/video-inpainting-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/video-inpainting/video-inpainting-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 2 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/video-inpainting/video-inpainting-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/video-inpainting/video-inpainting-case-4.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+       <!-- Placeholder for a missing video -->
+        <div style="width: 100%; height: 100%; background-color: white; display: flex; align-items: center; justify-content: center;">
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- Video Style Transfer -->
+<section class="video-grid" id="video-style">
+    <div class="container">
+       <div class="content has-text-justified">
+         <h2 class="title is-3" style="color: rgb(205, 48, 0);">Video Style Transfer</h2>
+       </div>
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/video-style-transfer/video-style-transfer-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/video-style-transfer/video-style-transfer-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 2 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/video-style-transfer/video-style-transfer-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/video-style-transfer/video-style-transfer-case-4.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+       <!-- Placeholder for a missing video -->
+        <div style="width: 100%; height: 100%; background-color: white; display: flex; align-items: center; justify-content: center;">
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+    
+</body>
+<style>
+  .hidden {
+      display: none;
+  }
+  .sortable:hover {
+      cursor: pointer;
+  }
+  .asc::after {
+      content: ' ↑';
+  }
+  .desc::after {
+      content: ' ↓';
+  }
+  #toggleButton {
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    color: #555555;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition-duration: 0.4s;
+  }
+
+  #toggleButton:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19); /* 鼠标悬停时的阴影效果 */
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+  }
+
+  th, td {
+      text-align: left;
+      padding: 8px;
+  }
+
+  th {
+      background-color: #f2f2f2;
+      border-bottom: 2px solid #ddd;
+  }
+
+  td:hover {background-color: #ffffff;}
+
+  .video-grid .video-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+</style>
+</html>
+
+
+<!-- RESULTS SECTION -->
+<section class="section" id="comparisons">
+    <div class="container">
+        <div class="columns is-centered has-text-centered">
+      <h2 class="title is-3">Comparison with State-of-the-Art Studies</h1>
+    </div>
+    <div class="container">
+        <!-- <div class="column is-full-width has-text-centered"> -->
+          <p>
+          <ul>
+            In the following videos, we showcase the qualitative comparison of StableV2V with existing state-of-the-art studies.
+          </ul>
+          </p>
+      </div>
+      </div>  
+    </div>
+  </section>
+
+  <!-- Text-based Editing -->
+<section class="video-grid" id="text-based">
+    <div class="container">
+       <div class="content has-text-justified">
+         <h2 class="title is-3" style="color: rgb(205, 48, 0);">Text-based Editing</h2>
+       </div>
+    <!-- Row 1 -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 32%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/comparisons/qualitative-comparison-text-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 32%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/qualitative-comparison-text-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 32%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+            <source src="materials/comparisons/qualitative-comparison-text-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  
+    <!-- Row 2 -->
+<div class="container">
+    <div class="content has-text-justified">
+        <h2 class="title is-3" style="color: rgb(205, 48, 0);">Image-based Editing</h2>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 32%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/qualitative-comparison-image-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 32%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/qualitative-comparison-image-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 32%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/qualitative-comparison-image-case-3.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+
+
+
+    <div class="content has-text-justified">
+        <h2 class="title is-3" style="color: rgb(205, 48, 0);">More Comparison</h2>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/comparison-with-avid-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/comparison-with-avid-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/comparison-with-vase-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/comparison-with-vase-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; margin-top: 20px;">
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/comparison-with-i2vedit-case-1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div style="width: 48%; text-align: center;">
+        <video autoplay controls muted loop playsinline width="100%">
+          <source src="materials/comparisons/comparison-with-i2vedit-case-2.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
